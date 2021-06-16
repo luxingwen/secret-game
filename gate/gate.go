@@ -1,9 +1,8 @@
 package gate
 
 import (
-	"github.com/name5566/leaf/chanrpc"
-	"github.com/name5566/leaf/log"
-	"github.com/name5566/leaf/network"
+	"github.com/luxingwen/secret-game/network"
+	"log"
 	"net"
 	"reflect"
 	"time"
@@ -14,7 +13,6 @@ type Gate struct {
 	PendingWriteNum int
 	MaxMsgLen       uint32
 	Processor       network.Processor
-	AgentChanRPC    *chanrpc.Server
 
 	// websocket
 	WSAddr      string
@@ -41,43 +39,15 @@ func (gate *Gate) Run(closeSig chan bool) {
 		wsServer.KeyFile = gate.KeyFile
 		wsServer.NewAgent = func(conn *network.WSConn) network.Agent {
 			a := &agent{conn: conn, gate: gate}
-			if gate.AgentChanRPC != nil {
-				gate.AgentChanRPC.Go("NewAgent", a)
-			}
 			return a
 		}
 	}
-
-	var tcpServer *network.TCPServer
-	if gate.TCPAddr != "" {
-		tcpServer = new(network.TCPServer)
-		tcpServer.Addr = gate.TCPAddr
-		tcpServer.MaxConnNum = gate.MaxConnNum
-		tcpServer.PendingWriteNum = gate.PendingWriteNum
-		tcpServer.LenMsgLen = gate.LenMsgLen
-		tcpServer.MaxMsgLen = gate.MaxMsgLen
-		tcpServer.LittleEndian = gate.LittleEndian
-		tcpServer.NewAgent = func(conn *network.TCPConn) network.Agent {
-			a := &agent{conn: conn, gate: gate}
-			if gate.AgentChanRPC != nil {
-				gate.AgentChanRPC.Go("NewAgent", a)
-			}
-			return a
-		}
-	}
-
 	if wsServer != nil {
 		wsServer.Start()
-	}
-	if tcpServer != nil {
-		tcpServer.Start()
 	}
 	<-closeSig
 	if wsServer != nil {
 		wsServer.Close()
-	}
-	if tcpServer != nil {
-		tcpServer.Close()
 	}
 }
 
