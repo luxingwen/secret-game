@@ -5,7 +5,7 @@ import (
 )
 
 type Conf struct {
-	DB *DBConfig `timl:"mysql"`
+	DB *DBConfig `toml:"mysql"`
 }
 
 // Config mysql config.

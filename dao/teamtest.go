@@ -9,13 +9,13 @@ import (
 func (d *Dao) GenTeamTest(teamid int64) (err error) {
 	resSubject := make([]*model.Subject, 0)
 
-	err = d.DB.Table("subject").Find(&resSubject).Error
+	err = d.DB.Table(TableSubject).Find(&resSubject).Error
 
 	if err != nil {
 		return
 	}
 
-	err = d.DB.Table("team_test").Where("team_id = ?", teamid).Delete(&model.TeamTest{}).Error
+	err = d.DB.Table(TableTeamTest).Where("team_id = ?", teamid).Delete(&model.TeamTest{}).Error
 	if err != nil {
 		return
 	}
@@ -24,11 +24,11 @@ func (d *Dao) GenTeamTest(teamid int64) (err error) {
 	for _, item := range resSubject {
 		mSubject[item.Id] = item
 	}
-	tests := make([]model.TeamTest, 0)
+	tests := make([]*model.TeamTest, 0)
 
 	var id int64 = 1
 	for _, item := range mSubject {
-		tests = append(tests, model.TeamTest{
+		tests = append(tests, &model.TeamTest{
 			TeamId:    teamid,
 			SortNo:    id,
 			SubjectId: item.Id,
@@ -36,7 +36,12 @@ func (d *Dao) GenTeamTest(teamid int64) (err error) {
 		id++
 	}
 
-	err = d.DB.Table("team_test").Create(&tests).Error
+	for _, item := range tests {
+		err = d.DB.Table(TableTeamTest).Create(&item).Error
+		if err != nil {
+			return
+		}
+	}
 
 	return
 }
@@ -44,7 +49,7 @@ func (d *Dao) GenTeamTest(teamid int64) (err error) {
 func (d *Dao) TeamTestList(teamId int64) (res []model.ResTeamTest, err error) {
 
 	var count int64
-	err = d.DB.Table("team_test").Where("team_id = ?", teamId).Count(&count).Error
+	err = d.DB.Table(TableTeamTest).Where("team_id = ?", teamId).Count(&count).Error
 	if err != nil {
 		return
 	}
@@ -54,14 +59,14 @@ func (d *Dao) TeamTestList(teamId int64) (res []model.ResTeamTest, err error) {
 			return
 		}
 	}
-	resTeamTests := make([]model.TeamTest, 0)
-	err = d.DB.Table("team_test").Where("team_id = ?", teamId).Order("sort_no ASC").Find(&resTeamTests).Error
+	resTeamTests := make([]*model.TeamTest, 0)
+	err = d.DB.Table(TableTeamTest).Where("team_id = ?", teamId).Order("sort_no ASC").Find(&resTeamTests).Error
 	if err != nil {
 		return
 	}
 
 	subjects := make([]*model.Subject, 0)
-	err = d.DB.Table("subject").Find(&subjects).Error
+	err = d.DB.Table(TableSubject).Find(&subjects).Error
 	if err != nil {
 		return
 	}
@@ -82,8 +87,16 @@ func (d *Dao) TeamTestList(teamId int64) (res []model.ResTeamTest, err error) {
 			AnswerStatus: item.AnswerStatus,
 		}
 
-		if item.HitCount > 0 {
-			resItem.Hits = subjectItem.Hits[:item.HitCount]
+		if item.HitCount == 1 {
+
+			resItem.Hits = append(resItem.Hits, subjectItem.Hits)
+
+		}
+
+		if item.HitCount == 2 {
+
+			resItem.Hits = append(resItem.Hits, subjectItem.Hits2)
+
 		}
 
 		res = append(res, resItem)
@@ -97,13 +110,13 @@ func (d *Dao) TeamTestList(teamId int64) (res []model.ResTeamTest, err error) {
 
 //
 func (d *Dao) TeatTestUpdateAnswerStatus(id int64) error {
-	return d.DB.Table("team_test").Where("id = ?", id).Update("answer_status = ?", 1).Error
+	return d.DB.Table(TableTeamTest).Where("id = ?", id).Update("answer_status = ?", 1).Error
 }
 
 func (d *Dao) AddTeatTestHitCount(id int64) error {
-	return d.DB.Table("team_test").Where("id = ?", id).Update("hit_count", gorm.Expr("hit_count + ?", 1)).Error
+	return d.DB.Table(TableTeamTest).Where("id = ?", id).Update("hit_count", gorm.Expr("hit_count + ?", 1)).Error
 }
 
 func (d *Dao) AddTeamTestLog(teamTestLog *model.TeamTestLog) error {
-	return d.DB.Table("team_test_log").Create(teamTestLog).Error
+	return d.DB.Table(TableTeamTestLog).Create(teamTestLog).Error
 }

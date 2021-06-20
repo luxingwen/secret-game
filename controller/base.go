@@ -52,6 +52,10 @@ func CheckErr(c *gin.Context, err error) {
 func Router() *gin.Engine {
 	r := gin.New()
 	api := r.Group("/api")
+	api.POST("/wxlogin", WxLogin)
+	api.POST("/wxcode", WxSetCode)
+
+	api.Use(WxJWT())
 	//api.Use(common.JWTNoMust())
 	team := api.Group("/team")
 	teamCtl := &TeamController{}
@@ -61,6 +65,14 @@ func Router() *gin.Engine {
 		team.POST("/join", teamCtl.JoinTeam)
 		team.POST("/quit", teamCtl.QuiteTeam)
 	}
+
+	testCtl := &TestController{}
+
+	test := api.Group("/test")
+	{
+		test.GET("/list", testCtl.List)
+	}
+
 	return r
 
 }

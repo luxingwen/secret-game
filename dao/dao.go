@@ -3,12 +3,24 @@ package dao
 import (
 	"github.com/jinzhu/gorm"
 	"github.com/luxingwen/secret-game/conf"
+	"github.com/luxingwen/secret-game/model"
 
 	"context"
 	"github.com/BurntSushi/toml"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"time"
+)
+
+const (
+	TableTeam        = "teams"
+	TableTeamUser    = "team_user_maps"
+	TableTeamTest    = "team_tests"
+	TableTeamTestLog = "team_test_logs"
+	TableSubject     = "subjects"
+	TableWxUser      = "wx_users"
+	TableWxCode      = "wx_codes"
 )
 
 var dao *Dao
@@ -21,13 +33,14 @@ func init() {
 		panic(err)
 	}
 
-	if _, err := toml.Decode(b, &conf); err != nil {
+	if _, err := toml.Decode(string(b), &conf); err != nil {
 		// handle error
 		panic(err)
 	}
 	dao = NewDao(&conf)
+	dao.DB.LogMode(true)
 
-	dao.AutoMigrate(&model.Team{}, &model.TeamUserMap{}, &model.Subject{}, &model.TeamTest{}, &model.TeamTestLog{})
+	dao.DB.AutoMigrate(&model.Team{}, &model.TeamUserMap{}, &model.Subject{}, &model.TeamTest{}, &model.TeamTestLog{}, &model.WxUser{}, &model.WxCode{})
 }
 
 func GetDao() *Dao {

@@ -17,7 +17,8 @@ func (ctl *TeamController) Create(c *gin.Context) {
 		handleErr(c, err)
 		return
 	}
-	team.LeaderId = 1
+
+	team.LeaderId = int64(c.GetInt("wxUserId"))
 	err = dao.GetDao().AddTeam(team)
 	if err != nil {
 		handleErr(c, err)

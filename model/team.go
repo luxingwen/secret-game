@@ -1,5 +1,9 @@
 package model
 
+import (
+	"github.com/jinzhu/gorm"
+)
+
 type User struct {
 	Id   int
 	Name string
@@ -27,8 +31,9 @@ type TeamUserMap struct {
 type Subject struct {
 	Id      int64 `json:"id" gorm:"AUTO_INCREMENT;primary_key;"`
 	Name    string
-	Content string
-	Hits    []string
+	Content string `gorm:"type:TEXT"`
+	Hits    string `gorm:"type:TEXT"`
+	Hits2   string
 	Answer  string
 }
 
@@ -68,4 +73,19 @@ type TeamTestLog struct {
 	UserId       int64  `json:"user_id"`
 	AnswerStatus int    `json:"answer_status"` // 回答状态
 	Log          string `json:"log"`           // 回答log
+}
+
+type WxUser struct {
+	gorm.Model
+	NickName  string `gorm:"column:nickname"`
+	AvatarUrl string `gorm:"column:avatar_url"`
+	Gender    int    `gorm:"column:gender"`
+	OpenId    string `gorm:"column:open_id;type:varchar(70);unique_index"`
+}
+
+type WxCode struct {
+	gorm.Model
+	Code       string
+	SessionKey string
+	OpenID     string
 }
