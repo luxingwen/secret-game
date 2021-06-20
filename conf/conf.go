@@ -5,13 +5,13 @@ import (
 )
 
 type Conf struct {
-	DB *DBConfig
+	DB *DBConfig `timl:"mysql"`
 }
 
 // Config mysql config.
 type DBConfig struct {
-	DSN         string        // data source name.
-	Active      int           // pool
-	Idle        int           // pool
-	IdleTimeout time.Duration // connect max life time.
+	DSN         string        `toml:"dsn"`         // data source name.
+	Active      int           `toml:"active"`      // pool
+	Idle        int           `toml:"idle"`        // pool
+	IdleTimeout time.Duration `toml:"idletimeout"` // connect max life time.
 }

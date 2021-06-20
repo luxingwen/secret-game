@@ -10,6 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/luxingwen/secret-game/controller"
+	_ "github.com/luxingwen/secret-game/dao"
 )
 
 func main() {

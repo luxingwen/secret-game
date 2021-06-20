@@ -5,11 +5,30 @@ import (
 	"github.com/luxingwen/secret-game/conf"
 
 	"context"
+	"github.com/BurntSushi/toml"
 	log "github.com/sirupsen/logrus"
+	"io/ioutil"
 	"time"
 )
 
 var dao *Dao
+
+func init() {
+	var conf conf.Conf
+
+	b, err := ioutil.ReadFile("conf/app.conf")
+	if err != nil {
+		panic(err)
+	}
+
+	if _, err := toml.Decode(b, &conf); err != nil {
+		// handle error
+		panic(err)
+	}
+	dao = NewDao(&conf)
+
+	dao.AutoMigrate(&model.Team{}, &model.TeamUserMap{}, &model.Subject{}, &model.TeamTest{}, &model.TeamTestLog{})
+}
 
 func GetDao() *Dao {
 	return dao
