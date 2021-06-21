@@ -46,8 +46,19 @@ func (d *Dao) GenTeamTest(teamid int64) (err error) {
 	return
 }
 
-func (d *Dao) TeamTestList(teamId int64) (res []model.ResTeamTest, err error) {
+func (d *Dao) GetSubjectByTestId(id int) (res *model.Subject, err error) {
 
+	test := new(model.TeamTest)
+	err = d.DB.Table(TableTeamTest).Where("id = ?", id).First(&test).Error
+	if err != nil {
+		return
+	}
+	res = new(model.Subject)
+	err = d.DB.Table(TableSubject).Where("id = ?", test.SubjectId).First(&res).Error
+	return
+}
+
+func (d *Dao) TeamTestList(teamId int64) (res []model.ResTeamTest, err error) {
 	var count int64
 	err = d.DB.Table(TableTeamTest).Where("team_id = ?", teamId).Count(&count).Error
 	if err != nil {
@@ -88,9 +99,7 @@ func (d *Dao) TeamTestList(teamId int64) (res []model.ResTeamTest, err error) {
 		}
 
 		if item.HitCount == 1 {
-
 			resItem.Hits = append(resItem.Hits, subjectItem.Hits)
-
 		}
 
 		if item.HitCount == 2 {
@@ -105,15 +114,35 @@ func (d *Dao) TeamTestList(teamId int64) (res []model.ResTeamTest, err error) {
 		}
 	}
 	return
-
 }
 
 //
-func (d *Dao) TeatTestUpdateAnswerStatus(id int64) error {
+func (d *Dao) TeatTestUpdateAnswerStatus(id int) error {
 	return d.DB.Table(TableTeamTest).Where("id = ?", id).Update("answer_status = ?", 1).Error
 }
 
-func (d *Dao) AddTeatTestHitCount(id int64) error {
+func (d *Dao) GetTeamTestHitsById(id int) (r string, err error) {
+	teamTest := new(model.TeamTest)
+	err = d.DB.Table(TableTeamTest).Where("id = ?", id).First(&teamTest).Error
+	if err != nil {
+		return
+	}
+	subject := new(model.Subject)
+
+	err = d.DB.Table(TableSubject).Where("id = ?", teamTest.SubjectId).First(&subject).Error
+	if err != nil {
+		return
+	}
+
+	if teamTest.HitCount == 1 {
+		r = subject.Hits
+		return
+	}
+	r = subject.Hits2
+	return
+}
+
+func (d *Dao) AddTeamTestHitCount(id int64) error {
 	return d.DB.Table(TableTeamTest).Where("id = ?", id).Update("hit_count", gorm.Expr("hit_count + ?", 1)).Error
 }
 

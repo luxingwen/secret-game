@@ -4,17 +4,13 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type User struct {
-	Id   int
-	Name string
-	Pic  string
-}
-
 type Team struct {
 	Id       int64  `json:"id" gorm:"AUTO_INCREMENT;primary_key;"`
-	Name     string `json:"name"`
+	Name     string `json:"name" gorm:"column:name;type:varchar(100);unique_index"`
 	Score    int64  `json:"score"`
 	LeaderId int64  `json:"leader_id"`
+	EndTime  int64  `json:"end_time"`
+	Status   int    `json:"status"`
 }
 
 func (t Team) TeamName() string {
@@ -39,10 +35,12 @@ type Subject struct {
 
 //
 type ResTeam struct {
-	Id    int64  `json:"id"`
-	Name  string `json:"name"`
-	Score int64  `json:"score"`
-	Count int64  `json:"count"`
+	Id       int64  `json:"id"`
+	Name     string `json:"name"`
+	Score    int64  `json:"score"`
+	Count    int64  `json:"count"`
+	Status   int    `json:"status"`
+	LeaderId int64  `json:"leader_id"`
 }
 
 // 测试题信息
@@ -88,4 +86,15 @@ type WxCode struct {
 	Code       string
 	SessionKey string
 	OpenID     string
+}
+
+type ResWxUser struct {
+	Id        int64  `json:"id"`
+	NickName  string `json:"nickname" gorm:"column:nickname"`
+	AvatarUrl string `json:"avatar_url" gorm:"column:avatar_url"`
+}
+
+type ResTeamInfo struct {
+	ResTeam
+	Users []ResWxUser `json:"users"`
 }

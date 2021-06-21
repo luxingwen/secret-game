@@ -64,6 +64,7 @@ func Router() *gin.Engine {
 		team.POST("/add", teamCtl.Create)
 		team.POST("/join", teamCtl.JoinTeam)
 		team.POST("/quit", teamCtl.QuiteTeam)
+		team.GET("/myinfo", teamCtl.TeamInfo)
 	}
 
 	testCtl := &TestController{}
@@ -71,8 +72,12 @@ func Router() *gin.Engine {
 	test := api.Group("/test")
 	{
 		test.GET("/list", testCtl.List)
+		test.POST("/start", testCtl.Start)
+		test.POST("/answer", testCtl.Answer)
+		test.POST("/hits", testCtl.GetHits)
 	}
 
+	api.GET("/ws", WsHandler)
 	return r
 
 }
