@@ -1,8 +1,11 @@
 package controller
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/luxingwen/secret-game/dao"
 	"net/http"
 )
 
@@ -94,4 +97,29 @@ func WsHandler(c *gin.Context) {
 	go client.Read()
 	go client.Write()
 
+}
+
+func NotifyTeams(uid int, cmd string, data interface{}) {
+	msg := Message{Cmd: cmd, Data: data}
+	b, err := json.Marshal(msg)
+	if err != nil {
+		fmt.Println("json marshl err:", err)
+		return
+	}
+
+	teamUsers, err := dao.GetDao().GetTeamUserMapsByUid(uid)
+	if err != nil {
+		fmt.Println("GetTeamUserMapsByUid err:", err)
+		return
+	}
+
+	for _, item := range teamUsers {
+		userId := int(item.UserId)
+		if userId == uid {
+			continue
+		}
+		if c, ok := WsManager.MWsClient[userId]; ok {
+			c.Send <- b
+		}
+	}
 }

@@ -48,6 +48,9 @@ func (ctl *TestController) Start(c *gin.Context) {
 	mdata := make(map[string]interface{}, 0)
 	mdata["status"] = 1
 	mdata["id"] = team.Id
+
+	NotifyTeams(uid, "start_test", mdata)
+
 	handleOk(c, mdata)
 
 }
@@ -90,7 +93,7 @@ type RequestHit struct {
 }
 
 func (ctl *TestController) GetHits(c *gin.Context) {
-	//uid := c.GetInt("wxUserId")
+	uid := c.GetInt("wxUserId")
 	var req RequestHit
 	err := c.ShouldBind(&req)
 	if err != nil {
@@ -108,5 +111,7 @@ func (ctl *TestController) GetHits(c *gin.Context) {
 
 	mdata["id"] = req.Id
 	mdata["hit"] = hit
+
+	NotifyTeams(uid, "test_hit", mdata)
 	handleOk(c, mdata)
 }

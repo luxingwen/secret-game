@@ -56,7 +56,6 @@ func Router() *gin.Engine {
 	api.POST("/wxcode", WxSetCode)
 
 	api.Use(WxJWT())
-	//api.Use(common.JWTNoMust())
 	team := api.Group("/team")
 	teamCtl := &TeamController{}
 	{

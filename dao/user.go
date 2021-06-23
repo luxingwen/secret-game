@@ -15,6 +15,12 @@ func (d *Dao) GetByOpenId(openId string) (wxUser *model.WxUser, err error) {
 	return
 }
 
+func (d *Dao) GetWxUser(id int) (r *model.WxUser, err error) {
+	r = new(model.WxUser)
+	err = d.DB.Table(TableWxUser).Where("id = ?", id).First(&r).Error
+	return
+}
+
 func (d *Dao) AddWxCode(wxCode *model.WxCode) (err error) {
 	err = d.DB.Table(TableWxCode).Create(wxCode).Error
 	return

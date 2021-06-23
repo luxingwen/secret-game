@@ -151,3 +151,16 @@ func (d *Dao) GetTeamInfo(uid int) (resTeam *model.ResTeamInfo, err error) {
 	resTeam.LeaderId = teamInfo.LeaderId
 	return
 }
+
+func (d *Dao) GetTeamUserMapsByUid(uid int) (r []*model.TeamUserMap, err error) {
+	teamUser := new(model.TeamUserMap)
+
+	err = d.DB.Table(TableTeamUser).Where("user_id = ?", uid).First(&teamUser).Error
+	if err != nil {
+		return
+	}
+
+	r = make([]*model.TeamUserMap, 0)
+	err = d.DB.Table(TableTeamUser).Where("team_id = ?", teamUser.TeamId).Find(&r).Error
+	return
+}

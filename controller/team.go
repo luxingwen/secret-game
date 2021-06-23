@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"strings"
 
@@ -20,6 +21,7 @@ func (ctl *TeamController) Create(c *gin.Context) {
 		return
 	}
 
+	fmt.Println("--->", c.GetInt("wxUserId"))
 	team.LeaderId = int64(c.GetInt("wxUserId"))
 	err = dao.GetDao().AddTeam(team)
 
@@ -64,6 +66,17 @@ func (ctl *TeamController) JoinTeam(c *gin.Context) {
 		handleErr(c, err)
 		return
 	}
+
+	wxUser, err := dao.GetDao().GetWxUser(uid)
+	if err != nil {
+		handleErr(c, err)
+		return
+	}
+	mdata := make(map[string]interface{}, 0)
+	mdata["nickname"] = wxUser.NickName
+	mdata["uid"] = wxUser.ID
+	mdata["avatar_url"] = wxUser.AvatarUrl
+	NotifyTeams(uid, "join_team", mdata)
 	handleOk(c, "ok")
 }
 
@@ -86,6 +99,10 @@ func (ctl *TeamController) QuiteTeam(c *gin.Context) {
 		handleErr(c, err)
 		return
 	}
+
+	mdata := make(map[string]interface{}, 0)
+	mdata["uid"] = uid
+	NotifyTeams(uid, "quit_team", mdata)
 	handleOk(c, "ok")
 }
 

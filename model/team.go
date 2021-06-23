@@ -5,12 +5,13 @@ import (
 )
 
 type Team struct {
-	Id       int64  `json:"id" gorm:"AUTO_INCREMENT;primary_key;"`
-	Name     string `json:"name" gorm:"column:name;type:varchar(100);unique_index"`
-	Score    int64  `json:"score"`
-	LeaderId int64  `json:"leader_id"`
-	EndTime  int64  `json:"end_time"`
-	Status   int    `json:"status"`
+	Id       int64     `json:"id" gorm:"AUTO_INCREMENT;primary_key;"`
+	Name     string    `json:"name" gorm:"column:name;type:varchar(100);unique_index"`
+	Score    int64     `json:"score"`
+	LeaderId int64     `json:"leader_id"`
+	EndTime  int64     `json:"end_time"`
+	Status   int       `json:"status"`
+	Created  time.Time `json:"created" gorm:"column:created"`
 }
 
 func (t Team) TeamName() string {
