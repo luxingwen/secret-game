@@ -96,6 +96,11 @@ func (d *Dao) TeamTestList(teamId int64) (res []model.ResTeamTest, err error) {
 			Name:         subjectItem.Name,
 			Content:      subjectItem.Content,
 			AnswerStatus: item.AnswerStatus,
+			Pic:          subjectItem.Pic,
+		}
+
+		if item.AnswerStatus == 1 {
+			resItem.AnsInfo = subjectItem.AnsInfo
 		}
 
 		if item.HitCount == 1 {
@@ -118,7 +123,7 @@ func (d *Dao) TeamTestList(teamId int64) (res []model.ResTeamTest, err error) {
 
 //
 func (d *Dao) TeatTestUpdateAnswerStatus(id int) error {
-	return d.DB.Table(TableTeamTest).Where("id = ?", id).Update("answer_status = ?", 1).Error
+	return d.DB.Table(TableTeamTest).Where("id = ?", id).Update(map[string]interface{}{"answer_status": 1}).Error
 }
 
 func (d *Dao) GetTeamTestHitsById(id int) (r string, err error) {

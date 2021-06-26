@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/jinzhu/gorm"
+	"time"
 )
 
 type Team struct {
@@ -32,6 +33,8 @@ type Subject struct {
 	Hits    string `gorm:"type:TEXT"`
 	Hits2   string
 	Answer  string
+	Pic     string
+	AnsInfo string
 }
 
 //
@@ -52,6 +55,7 @@ type TeamTest struct {
 	SubjectId    int64 `json:"subject_id"`    // 试题id
 	AnswerStatus int   `json:"answer_status"` // 回答状态
 	HitCount     int64 `json:"hit_count"`     // 提示次数
+
 }
 
 type ResTeamTest struct {
@@ -62,6 +66,8 @@ type ResTeamTest struct {
 	Hits         []string `json:"hits"`
 	AnswerStatus int      `json:"answer_status"` // 回答状态
 	HitCount     int64    `json:"hit_count"`     // 提示次数
+	Pic          string   `json:"pic"`
+	AnsInfo      string   `json:"ans_info"` // 答案详情
 }
 
 // 测试题信息

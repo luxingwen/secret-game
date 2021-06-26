@@ -82,12 +82,19 @@ func (c *WsClient) Write() {
 }
 
 func WsHandler(c *gin.Context) {
+	fmt.Println("--->ws")
 	uid := c.GetInt("wxUserId")
 	conn, err := (&websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}).Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
+		fmt.Println("2222->")
 		http.NotFound(c.Writer, c.Request)
 		return
 	}
+	if uid == 0 {
+		fmt.Println("无效的客户端-->", uid)
+		return
+	}
+	fmt.Println("ws--id>", uid)
 	client := &WsClient{
 		Id:   uid,
 		Conn: conn,

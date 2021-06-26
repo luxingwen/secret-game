@@ -76,7 +76,7 @@ func (ctl *TestController) Answer(c *gin.Context) {
 		return
 	}
 
-	if subject.Content == req.Content {
+	if subject.Answer == req.Content {
 		err = dao.GetDao().TeatTestUpdateAnswerStatus(req.Id)
 		if err != nil {
 			return

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	//"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/luxingwen/secret-game/controller"
@@ -16,6 +16,8 @@ import (
 func main() {
 	fmt.Println("hello world")
 
+	gin.SetMode(gin.DebugMode)
+	go controller.WsManager.Start()
 	s := &http.Server{
 		Addr:           ":8080",
 		Handler:        controller.Router(),

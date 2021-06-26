@@ -51,7 +51,9 @@ func CheckErr(c *gin.Context, err error) {
 
 func Router() *gin.Engine {
 	r := gin.New()
+	r.Use(gin.Logger())
 	api := r.Group("/api")
+
 	api.POST("/wxlogin", WxLogin)
 	api.POST("/wxcode", WxSetCode)
 

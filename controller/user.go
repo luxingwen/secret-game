@@ -81,8 +81,9 @@ func WxLogin(c *gin.Context) {
 		handleErr(c, err)
 		return
 	}
-	rmdata := make(map[string]string, 0)
+	rmdata := make(map[string]interface{}, 0)
 	rmdata["token"] = token
+	rmdata["uid"] = wxUser.ID
 
 	handleOk(c, rmdata)
 }

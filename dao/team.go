@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/jinzhu/gorm"
+
 	"github.com/luxingwen/secret-game/model"
 )
 
@@ -38,12 +40,20 @@ func (d *Dao) List() (res []model.ResTeam, err error) {
 	teams := make([]*model.Team, 0)
 	err = d.DB.Table(TableTeam).Find(&teams).Error
 	if err != nil {
+		fmt.Println("--->err:", err)
+		if err == gorm.ErrRecordNotFound {
+			err = nil
+		}
 		return
 	}
 
 	resTeam := make([]*ResTeamUser, 0)
 	err = d.DB.Table(TableTeamUser).Select("id, count(user_id) AS count, team_id").Group("team_id").Find(&resTeam).Error
 	if err != nil {
+		fmt.Println("--->err2:", err)
+		if err.Error() == "record not found" {
+			err = nil
+		}
 		return
 	}
 
@@ -76,7 +86,20 @@ func (d *Dao) JoinTeam(uid, teamId int) error {
 	return d.DB.Table(TableTeamUser).Create(&teamUser).Error
 }
 
-func (d *Dao) QuitTeam(uid, teamId int) error {
+func (d *Dao) QuitTeam(uid, teamId int) (err error) {
+	team := new(model.Team)
+	err = d.DB.Table(TableTeam).Where("id = ?", teamId).First(&team).Error
+	if err != nil {
+		return
+	}
+
+	if team.LeaderId == int64(uid) {
+		err = d.DB.Table(TableTeam).Where("id = ?", teamId).Delete(&model.Team{}).Error
+		if err != nil {
+			return
+		}
+	}
+
 	return d.DB.Table(TableTeamUser).Where("user_id = ? AND team_id = ?", uid, teamId).Delete(&model.TeamUserMap{}).Error
 }
 
@@ -101,6 +124,7 @@ func (d *Dao) GetTeamInfo(uid int) (resTeam *model.ResTeamInfo, err error) {
 	teamUser := new(model.TeamUserMap)
 	err = d.DB.Table(TableTeamUser).Where("user_id = ?", uid).First(&teamUser).Error
 	if err != nil {
+		fmt.Println("--->", err)
 		return
 	}
 
