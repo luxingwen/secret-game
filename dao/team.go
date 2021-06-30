@@ -67,7 +67,7 @@ func (d *Dao) List(searchOp *model.TeamListSearch) (res model.TeamListReturn, er
 	teamIdList := make([]struct {
 		Id int64 `gorm:"column:id;`
 	}, 0)
-	err = d.DB.Table(TableTeam).Select("id").Offset(begin).Limit(searchOp.Size).Find(&teamIdList).Error
+	err = d.DB.Table(TableTeam).Select("id").Offset(begin).Limit(searchOp.Size).Order("id").Find(&teamIdList).Error
 	if err != nil {
 		fmt.Println(" --->>> offset failed", err)
 		return
