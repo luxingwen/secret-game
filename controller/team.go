@@ -37,7 +37,15 @@ func (ctl *TeamController) Create(c *gin.Context) {
 }
 
 func (ctl *TeamController) List(c *gin.Context) {
-	res, err := dao.GetDao().List()
+	search := new(model.TeamListSearch)
+	err := c.ShouldBind(&search)
+	fmt.Println(search)
+	if err != nil {
+		fmt.Println("err", err)
+		return
+	}
+	search.UserId = int64(c.GetInt("wxUserId"))
+	res, err := dao.GetDao().List(search)
 	if err != nil {
 		handleErr(c, err)
 		return
