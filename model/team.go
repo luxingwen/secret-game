@@ -19,6 +19,12 @@ func (t Team) TeamName() string {
 	return "team"
 }
 
+type TeamListSearch struct {
+	UserId int64 `json:"user_id" form:"user_id"`
+	Size   int64 `json:"size" form:"size"`
+	Page   int64 `json:"page" form:"page"`
+}
+
 type TeamUserMap struct {
 	Id     int64 `json:"id" gorm:"AUTO_INCREMENT;primary_key;"`
 	TeamId int64 `json:"team_id"`
@@ -37,7 +43,7 @@ type Subject struct {
 	AnsInfo string
 }
 
-//
+// 队伍列表信息
 type ResTeam struct {
 	Id       int64  `json:"id"`
 	Name     string `json:"name"`
@@ -45,6 +51,15 @@ type ResTeam struct {
 	Count    int64  `json:"count"`
 	Status   int    `json:"status"`
 	LeaderId int64  `json:"leader_id"`
+	IsMember bool   `json:"is_member"`
+}
+
+// 队伍列表返回
+type TeamListReturn struct {
+	Total       int       `json:"total"`
+	CurrentPage int       `json:"current_page"`
+	CurrentSize int       `json:"current_size"`
+	TeamList    []ResTeam `json:"team_list"`
 }
 
 // 测试题信息

@@ -19,13 +19,13 @@ func main() {
 	gin.SetMode(gin.DebugMode)
 	go controller.WsManager.Start()
 	s := &http.Server{
-		Addr:           ":8080",
+		Addr:           ":5000",
 		Handler:        controller.Router(),
 		ReadTimeout:    120 * time.Second,
 		WriteTimeout:   120 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-	log.Info("start server  on ", 8080)
+	log.Info("start server  on ", 5000)
 	if err := s.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
