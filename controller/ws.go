@@ -51,16 +51,39 @@ func (c *WsClient) Read() {
 	}()
 
 	for {
-		c.Conn.PongHandler()
 		_, msg, err := c.Conn.ReadMessage()
 		if err != nil {
+			fmt.Println("err:", err)
 			WsManager.Unregister <- c
 			c.Conn.Close()
 			break
 		}
-		_ = msg
+		fmt.Println("rev:", string(msg))
+		msgData := new(Message)
+		err = json.Unmarshal(msg, &msgData)
+		if err != nil {
+			fmt.Println("json unmarshl er:", err)
+			continue
+		}
+		c.handlerMsg(msgData)
+
 	}
 
+}
+
+func (c *WsClient) handlerMsg(msg *Message) {
+	if msg.Cmd == "register" {
+		token := msg.Data.(string)
+		claims, err := ParseWxToken(token)
+		if err != nil {
+			fmt.Println("parse wx token err:", err)
+			return
+		}
+
+		c.Id = claims.Id
+		WsManager.Register <- c
+		fmt.Println("c-->", claims)
+	}
 }
 
 func (c *WsClient) Write() {
@@ -90,17 +113,21 @@ func WsHandler(c *gin.Context) {
 		http.NotFound(c.Writer, c.Request)
 		return
 	}
-	if uid == 0 {
-		fmt.Println("无效的客户端-->", uid)
-		return
-	}
+
 	fmt.Println("ws--id>", uid)
 	client := &WsClient{
-		Id:   uid,
 		Conn: conn,
 		Send: make(chan []byte),
 	}
-	WsManager.Register <- client
+
+	if uid != 0 {
+		client.Id = uid
+		WsManager.Register <- client
+
+	} else {
+		fmt.Println("无效的客户端-->", uid)
+	}
+
 	go client.Read()
 	go client.Write()
 

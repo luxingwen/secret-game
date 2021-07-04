@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
@@ -31,14 +30,12 @@ func (d *Dao) DeleteTeam(id int64) error {
 }
 
 type ResTeamUser struct {
-	Id       int64
-	Name     string
-	LeaderId int64
-	TeamId   int64
-	UserId   int64
+	Id     int64
+	Count  int64
+	TeamId int64
 }
 
-func (d *Dao) List(searchOp *model.TeamListSearch) (res model.TeamListReturn, err error) {
+func (d *Dao) List(searchOp *model.TeamListSearch) (res []model.ResTeam, err error) {
 	teams := make([]*model.Team, 0)
 	err = d.DB.Table(TableTeam).Find(&teams).Error
 	if err != nil {
@@ -48,72 +45,35 @@ func (d *Dao) List(searchOp *model.TeamListSearch) (res model.TeamListReturn, er
 		}
 		return
 	}
-
-	// 获取队伍数量总数
-	var teamNum int
-	err = d.DB.Table(TableTeam).Count(&teamNum).Error
+	resTeam := make([]*ResTeamUser, 0)
+	err = d.DB.Table(TableTeamUser).Select("id, count(user_id) AS count, team_id").Group("team_id").Find(&resTeam).Error
 	if err != nil {
-		fmt.Println("get total num of teams failed ---> ", err)
-		return
-	}
-
-	begin := (searchOp.Page - 1) * searchOp.Size
-	if begin > int64(teamNum) {
-		err = errors.New("查询范围越界")
-		return
-	}
-
-	// 获取查询的队伍的id list
-	teamIdList := make([]struct {
-		Id int64 `gorm:"column:id;`
-	}, 0)
-	err = d.DB.Table(TableTeam).Select("id").Offset(begin).Limit(searchOp.Size).Order("id").Find(&teamIdList).Error
-	if err != nil {
-		fmt.Println(" --->>> offset failed", err)
-		return
-	}
-	var searchTeamIdList []int64
-	for _, teamId := range teamIdList {
-		searchTeamIdList = append(searchTeamIdList, teamId.Id)
-	}
-
-	// 查找队伍id对应的成员信息
-	sql := "select a.id, a.name, a.leader_id, b.id as team_id, b.user_id from teams a inner join team_user_maps b on a.id = b.team_id and b.team_id in (?)"
-	resTeamInfo := make([]ResTeamUser, 0)
-	d.DB.Raw(sql, searchTeamIdList).Scan(&resTeamInfo)
-
-	tempMap := make(map[int64]*model.ResTeam)
-
-	for _, team := range resTeamInfo {
-		val, ok := tempMap[team.Id]
-		if ok {
-			val.Count += 1
-			if team.UserId == searchOp.UserId {
-				val.IsMember = true
-			}
-		} else {
-			teamInfo := &model.ResTeam{
-				Id:       team.Id,
-				Name:     team.Name,
-				Score:    0, // score todo
-				LeaderId: team.LeaderId,
-				Count:    1,
-				IsMember: team.UserId == searchOp.UserId,
-			}
-			tempMap[team.Id] = teamInfo
+		fmt.Println("--->err2:", err)
+		if err.Error() == "record not found" {
+			err = nil
 		}
+		return
 	}
 
-	teamList := make([]model.ResTeam, 0)
-	for _, v := range tempMap {
-		teamList = append(teamList, *v)
+	mTeam := make(map[int64]*ResTeamUser, 0)
+	for _, item := range resTeam {
+		mTeam[item.TeamId] = item
 	}
 
-	res.Total = teamNum
-	res.CurrentPage = int(searchOp.Page)
-	res.CurrentSize = int(searchOp.Size)
+	for _, item := range teams {
 
-	res.TeamList = teamList
+		itemResTeam := model.ResTeam{
+			Id:       item.Id,
+			Name:     item.Name,
+			Score:    item.Score,
+			LeaderId: item.LeaderId,
+		}
+		if itemTeam, ok := mTeam[item.Id]; ok {
+			itemResTeam.Count = itemTeam.Count
+
+		}
+		res = append(res, itemResTeam)
+	}
 
 	// todo test and add team img_url into return
 

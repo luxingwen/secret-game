@@ -53,7 +53,7 @@ func Router() *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger())
 	api := r.Group("/api")
-
+	api.GET("/ws", WsHandler)
 	api.POST("/wxlogin", WxLogin)
 	api.POST("/wxcode", WxSetCode)
 
@@ -78,7 +78,6 @@ func Router() *gin.Engine {
 		test.POST("/hits", testCtl.GetHits)
 	}
 
-	api.GET("/ws", WsHandler)
 	return r
 
 }
