@@ -69,6 +69,12 @@ func (ctl *TeamController) JoinTeam(c *gin.Context) {
 		return
 	}
 
+	err = dao.GetDao().BeforeJoinTeamQuitTeam(uid)
+	if err != nil {
+		handleErr(c, err)
+		return
+	}
+
 	err = dao.GetDao().JoinTeam(uid, req.TeamId)
 	if err != nil {
 		handleErr(c, err)

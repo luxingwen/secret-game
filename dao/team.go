@@ -80,6 +80,11 @@ func (d *Dao) List(searchOp *model.TeamListSearch) (res []model.ResTeam, err err
 	return
 }
 
+// 参加队伍前退出队伍
+func (d *Dao) BeforeJoinTeamQuitTeam(uid int) error {
+	return d.DB.Table(TableTeamUser).Where("user_id = ?", uid).Delete(&model.TeamUserMap{}).Error
+}
+
 func (d *Dao) JoinTeam(uid, teamId int) error {
 	teamUser := model.TeamUserMap{
 		TeamId: int64(teamId),
