@@ -14,8 +14,15 @@ type TestController struct {
 }
 
 func (ctl *TestController) List(c *gin.Context) {
-	var teamId int64 = 1
 
+	uid := c.GetInt("wxUserId")
+
+	teamId, err := dao.GetDao().GetTeamIdByUserUid(uid)
+
+	if err != nil {
+		handleErr(c, err)
+		return
+	}
 	res, err := dao.GetDao().TeamTestList(teamId)
 	if err != nil {
 		handleErr(c, err)

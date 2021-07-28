@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/luxingwen/secret-game/dao"
 	"net/http"
+	"time"
 )
 
 type WsClient struct {
@@ -33,6 +34,7 @@ var WsManager = &WsClientManager{
 }
 
 func (manager *WsClientManager) Start() {
+	t := time.NewTicker(time.Minute)
 	for {
 		select {
 		case c := <-WsManager.Register:
@@ -40,6 +42,16 @@ func (manager *WsClientManager) Start() {
 
 		case c := <-WsManager.Unregister:
 			delete(WsManager.MWsClient, c.Id)
+		case <-t.C:
+			msg := Message{Cmd: "servertime", Data: time.Now().Unix()}
+			b, err := json.Marshal(msg)
+			if err != nil {
+				fmt.Println("json marshl err:", err)
+				continue
+			}
+			for _, c := range manager.MWsClient {
+				c.Send <- b
+			}
 		}
 	}
 }

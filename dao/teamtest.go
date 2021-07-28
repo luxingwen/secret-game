@@ -107,10 +107,9 @@ func (d *Dao) TeamTestList(teamId int64) (res []model.ResTeamTest, err error) {
 			resItem.Hits = append(resItem.Hits, subjectItem.Hits)
 		}
 
-		if item.HitCount == 2 {
-
+		if item.HitCount >= 2 {
+			resItem.Hits = append(resItem.Hits, subjectItem.Hits)
 			resItem.Hits = append(resItem.Hits, subjectItem.Hits2)
-
 		}
 
 		res = append(res, resItem)
@@ -139,7 +138,12 @@ func (d *Dao) GetTeamTestHitsById(id int) (r string, err error) {
 		return
 	}
 
-	if teamTest.HitCount == 1 {
+	err = d.AddTeamTestHitCount(id)
+	if err != nil {
+		return
+	}
+
+	if teamTest.HitCount < 1 {
 		r = subject.Hits
 		return
 	}
@@ -147,7 +151,7 @@ func (d *Dao) GetTeamTestHitsById(id int) (r string, err error) {
 	return
 }
 
-func (d *Dao) AddTeamTestHitCount(id int64) error {
+func (d *Dao) AddTeamTestHitCount(id int) error {
 	return d.DB.Table(TableTeamTest).Where("id = ?", id).Update("hit_count", gorm.Expr("hit_count + ?", 1)).Error
 }
 

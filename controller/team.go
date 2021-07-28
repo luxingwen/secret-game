@@ -69,6 +69,16 @@ func (ctl *TeamController) JoinTeam(c *gin.Context) {
 		return
 	}
 
+	wxUser, err := dao.GetDao().GetWxUser(uid)
+	if err != nil {
+		handleErr(c, err)
+		return
+	}
+	mdata := make(map[string]interface{}, 0)
+	mdata["nickname"] = wxUser.NickName
+	mdata["uid"] = wxUser.ID
+	mdata["avatar_url"] = wxUser.AvatarUrl
+	NotifyTeams(uid, "quit_team", mdata)
 	err = dao.GetDao().BeforeJoinTeamQuitTeam(uid)
 	if err != nil {
 		handleErr(c, err)
@@ -81,15 +91,6 @@ func (ctl *TeamController) JoinTeam(c *gin.Context) {
 		return
 	}
 
-	wxUser, err := dao.GetDao().GetWxUser(uid)
-	if err != nil {
-		handleErr(c, err)
-		return
-	}
-	mdata := make(map[string]interface{}, 0)
-	mdata["nickname"] = wxUser.NickName
-	mdata["uid"] = wxUser.ID
-	mdata["avatar_url"] = wxUser.AvatarUrl
 	NotifyTeams(uid, "join_team", mdata)
 	handleOk(c, "ok")
 }
@@ -108,15 +109,23 @@ func (ctl *TeamController) QuiteTeam(c *gin.Context) {
 		return
 	}
 
+	wxUser, err := dao.GetDao().GetWxUser(uid)
+	if err != nil {
+		handleErr(c, err)
+		return
+	}
+	mdata := make(map[string]interface{}, 0)
+	mdata["nickname"] = wxUser.NickName
+	mdata["uid"] = wxUser.ID
+	mdata["avatar_url"] = wxUser.AvatarUrl
+	NotifyTeams(uid, "quit_team", mdata)
+
 	err = dao.GetDao().QuitTeam(uid, req.TeamId)
 	if err != nil {
 		handleErr(c, err)
 		return
 	}
 
-	mdata := make(map[string]interface{}, 0)
-	mdata["uid"] = uid
-	NotifyTeams(uid, "quit_team", mdata)
 	handleOk(c, "ok")
 }
 
