@@ -3,11 +3,13 @@ package controller
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/luxingwen/secret-game/dao"
 	"github.com/luxingwen/secret-game/model"
+	"github.com/luxingwen/secret-game/tools"
 )
 
 type TeamController struct {
@@ -138,4 +140,48 @@ func (ctl *TeamController) TeamInfo(c *gin.Context) {
 		return
 	}
 	handleOk(c, res)
+}
+
+// 查询队伍聊天
+func (ctl *TeamController) TeamChatList(c *gin.Context) {
+	uid := c.GetInt("wxUserId")
+
+	res, err := dao.GetDao().GetTeamInfo(uid)
+	if err != nil {
+		handleErr(c, err)
+		return
+	}
+	chatList, err := tools.TeamChatList(int(res.Id))
+	if err != nil {
+		handleErr(c, err)
+		return
+	}
+	handleOk(c, chatList)
+}
+
+type Chat struct {
+	Content string `json:"content"`
+}
+
+// 聊天
+func (ctl *TeamController) TeamChat(c *gin.Context) {
+	uid := c.GetInt("wxUserId")
+	var chat Chat
+	err := c.ShouldBind(&chat)
+	if err != nil {
+		handleErr(c, err)
+		return
+	}
+
+	res, err := dao.GetDao().GetTeamInfo(uid)
+	if err != nil {
+		handleErr(c, err)
+		return
+	}
+
+	tools.TeamChat(uid, int(res.Id), chat.Content)
+
+	NotifyTeams(uid, "team_chat", chat)
+
+	handleOk(c, "ok")
 }
