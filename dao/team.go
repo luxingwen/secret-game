@@ -82,6 +82,26 @@ func (d *Dao) List(searchOp *model.TeamListSearch) (res []model.ResTeam, err err
 
 // 参加队伍前退出队伍
 func (d *Dao) BeforeJoinTeamQuitTeam(uid int) error {
+	var is_leader int
+	err := d.DB.Table(TableTeam).Where("leader_id = ?", uid).Count(&is_leader).Error
+	fmt.Println("is_leader => ", is_leader)
+	// 如果是队长解散队伍
+	if is_leader > 0 {
+		// 删除队伍
+		team := new(model.Team)
+		err = d.DB.Table(TableTeam).Where("leader_id = ?", uid).Delete(&team).Error
+		if err != nil {
+			return err
+		}
+		fmt.Printf("%+v", team)
+		fmt.Println("teamId => ", team.Id)
+		// 删除队伍成员
+		err = d.DB.Table(TableTeamUser).Where("team_id = ?", team.Id).Delete(&model.TeamUserMap{}).Error
+		if err != nil {
+			return err
+		}
+	}
+	// 退出队伍
 	return d.DB.Table(TableTeamUser).Where("user_id = ?", uid).Delete(&model.TeamUserMap{}).Error
 }
 
@@ -178,6 +198,7 @@ func (d *Dao) GetTeamInfo(uid int) (resTeam *model.ResTeamInfo, err error) {
 	resTeam.Id = teamInfo.Id
 	resTeam.Name = teamInfo.Name
 	resTeam.Score = teamInfo.Score
+	resTeam.TeamHeader = teamInfo.TeamHeaderImg
 	resTeam.Status = teamInfo.Status
 	resTeam.LeaderId = teamInfo.LeaderId
 	return

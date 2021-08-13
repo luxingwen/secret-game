@@ -185,3 +185,18 @@ func (ctl *TeamController) TeamChat(c *gin.Context) {
 
 	handleOk(c, "ok")
 }
+
+// 上传头像
+func (ctl *TeamController) HeaderImg(c *gin.Context) {
+	var saveUrl string
+	// 头像上传
+	file, err := c.FormFile("file")
+	if err != nil {
+		fmt.Println(err)
+	}
+	if file != nil {
+		saveUrl = tools.GetHeadImgUrl(file.Filename)
+		c.SaveUploadedFile(file, saveUrl)
+	}
+	handleOk(c, saveUrl)
+}
