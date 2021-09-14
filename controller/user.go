@@ -21,8 +21,11 @@ type Wxlogin struct {
 }
 
 const (
-	AppId     = "wxbd124eded535fd88"
-	AppSecret = "532138eb914654e8cd50909e1330b71f"
+	//AppId     = "wx8ded9e99c86ce8c2"
+	//AppSecret = "8da44079253130c4ebc93b1758eacdc0"
+
+	AppId     = "wx8e199f928cba4bf4"
+	AppSecret = "9720e0397a659f75f26dc53f6bbb1205"
 )
 
 // @Summary 登录
@@ -36,13 +39,13 @@ func WxLogin(c *gin.Context) {
 	mdata := make(map[string]interface{}, 0)
 	err := c.ShouldBind(&mdata)
 	if err != nil {
-		handleErr(c, err)
+		handleErr(c, CodeReqErr, err)
 		return
 	}
 
 	wxCode, err := dao.GetDao().GetWxCode(mdata["cache_key"].(string))
 	if err != nil {
-		handleErr(c, errors.New("没有找到sessionkey"))
+		handleErr(c, CodeNotFound, errors.New("没有找到sessionkey"))
 		return
 	}
 
@@ -55,11 +58,10 @@ func WxLogin(c *gin.Context) {
 	if err != nil {
 		// 处理一般错误信息
 		fmt.Println("res err:", err)
-		handleErr(c, err)
+		handleErr(c, CodeReqErr, err)
 		return
 	}
 
-	fmt.Printf("返回结果: %#v\n", res)
 	wxUser := &model.WxUser{NickName: res.Nickname, AvatarUrl: res.Avatar, Gender: res.Gender, OpenId: wxCode.OpenID}
 
 	oldWxUser, err := dao.GetDao().GetByOpenId(wxCode.OpenID)
@@ -67,7 +69,7 @@ func WxLogin(c *gin.Context) {
 	if err != nil && err.Error() == "record not found" {
 		err = dao.GetDao().AddWxUser(wxUser)
 		if err != nil {
-			handleErr(c, err)
+			handleErr(c, CodeDBErr, err)
 			return
 		}
 	} else if err == nil && oldWxUser != nil {
@@ -78,7 +80,7 @@ func WxLogin(c *gin.Context) {
 
 	token, err := GenerateWxToken(int(wxUser.ID))
 	if err != nil {
-		handleErr(c, err)
+		handleErr(c, CodeDBErr, err)
 		return
 	}
 	rmdata := make(map[string]interface{}, 0)
@@ -93,7 +95,7 @@ func WxSetCode(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		handleErr(c, err)
+		handleErr(c, CodeReqErr, err)
 		return
 	}
 
@@ -104,7 +106,7 @@ func WxSetCode(c *gin.Context) {
 	if err != nil {
 		// 处理一般错误信息
 		fmt.Println("login err:", err)
-		handleErr(c, err)
+		handleErr(c, CodeDBErr, err)
 		return
 	}
 
@@ -113,7 +115,7 @@ func WxSetCode(c *gin.Context) {
 	if err := res.GetResponseError(); err != nil {
 		// 处理微信返回错误信息
 		fmt.Println("GetResponseError:", err)
-		handleErr(c, err)
+		handleErr(c, CodeDBErr, err)
 		return
 	}
 
@@ -122,7 +124,7 @@ func WxSetCode(c *gin.Context) {
 	wxCode := &model.WxCode{Code: cacheKey, SessionKey: res.SessionKey, OpenID: res.OpenID}
 	err = dao.GetDao().AddWxCode(wxCode)
 	if err != nil {
-		handleErr(c, err)
+		handleErr(c, CodeDBErr, err)
 		return
 	}
 
@@ -131,7 +133,7 @@ func WxSetCode(c *gin.Context) {
 
 	b, err := json.Marshal(res)
 	if err != nil {
-		handleErr(c, err)
+		handleErr(c, CodeReqErr, err)
 		return
 	}
 

@@ -20,12 +20,12 @@ func (ctl *TestController) List(c *gin.Context) {
 	teamId, err := dao.GetDao().GetTeamIdByUserUid(uid)
 
 	if err != nil {
-		handleErr(c, err)
+		handleErr(c, CodeDBErr, err)
 		return
 	}
 	res, err := dao.GetDao().TeamTestList(teamId)
 	if err != nil {
-		handleErr(c, err)
+		handleErr(c, CodeDBErr, err)
 		return
 	}
 	handleOk(c, res)
@@ -36,19 +36,19 @@ func (ctl *TestController) Start(c *gin.Context) {
 	uid := c.GetInt("wxUserId")
 	team, err := dao.GetDao().GetTeamByLeaderId(int64(uid))
 	if err == gorm.ErrRecordNotFound {
-		handleErr(c, errors.New("你不是队长"))
+		handleErr(c, CodePermissions, errors.New("你不是队长"))
 		return
 	}
 
 	err = dao.GetDao().TeamStartGame(team.Id)
 	if err != nil {
-		handleErr(c, err)
+		handleErr(c, CodeDBErr, err)
 		return
 	}
 
 	err = dao.GetDao().GenTeamTest(team.Id)
 	if err != nil {
-		handleErr(c, err)
+		handleErr(c, CodeDBErr, err)
 		return
 	}
 
@@ -73,13 +73,13 @@ func (ctl *TestController) Answer(c *gin.Context) {
 	var req ReqAnswer
 	err := c.ShouldBind(&req)
 	if err != nil {
-		handleErr(c, err)
+		handleErr(c, CodeReqErr, err)
 		return
 	}
 
 	subject, err := dao.GetDao().GetSubjectByTestId(req.Id)
 	if err != nil {
-		handleErr(c, err)
+		handleErr(c, CodeDBErr, err)
 		return
 	}
 
@@ -92,7 +92,7 @@ func (ctl *TestController) Answer(c *gin.Context) {
 		return
 	}
 
-	handleErr(c, errors.New("回答错误"))
+	handleErr(c, 1, errors.New("回答错误"))
 }
 
 type RequestHit struct {
@@ -104,13 +104,13 @@ func (ctl *TestController) GetHits(c *gin.Context) {
 	var req RequestHit
 	err := c.ShouldBind(&req)
 	if err != nil {
-		handleErr(c, err)
+		handleErr(c, CodeReqErr, err)
 		return
 	}
 
 	hit, err := dao.GetDao().GetTeamTestHitsById(req.Id)
 	if err != nil {
-		handleErr(c, err)
+		handleErr(c, CodeDBErr, err)
 		return
 	}
 

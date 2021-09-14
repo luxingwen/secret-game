@@ -8,6 +8,17 @@ import (
 	"github.com/gin-gonic/gin/binding"
 )
 
+const (
+	CodeTokenNot     = 999  // Token 不存在
+	CodeTokenExpires = 403  // Token过期
+	CodeNotFound     = 1001 // 不存在
+	CodeCreateErr    = 1002 // 创建失败
+	CodeExist        = 1003 // 记录存在
+	CodeReqErr       = 1004 // 参数错误
+	CodeDBErr        = 1005 // 数据库操作错误
+	CodePermissions  = 1006 // 权限错误
+)
+
 func handleOk(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -16,9 +27,9 @@ func handleOk(c *gin.Context, data interface{}) {
 	})
 }
 
-func handleErr(c *gin.Context, err error) {
+func handleErr(c *gin.Context, code int, err error) {
 	c.JSON(http.StatusOK, gin.H{
-		"code":    1,
+		"code":    code,
 		"message": err.Error(),
 	})
 }

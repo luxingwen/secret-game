@@ -39,16 +39,14 @@ func (d *Dao) List(searchOp *model.TeamListSearch) (res []model.ResTeam, err err
 	teams := make([]*model.Team, 0)
 	err = d.DB.Table(TableTeam).Find(&teams).Error
 	if err != nil {
-		fmt.Println("--->err:", err)
 		if err == gorm.ErrRecordNotFound {
 			err = nil
 		}
 		return
 	}
 	resTeam := make([]*ResTeamUser, 0)
-	err = d.DB.Table(TableTeamUser).Select("id, count(user_id) AS count, team_id").Group("team_id").Find(&resTeam).Error
+	err = d.DB.Table(TableTeamUser).Select("id, count(user_id) AS count, team_id").Group("team_id,id").Find(&resTeam).Error
 	if err != nil {
-		fmt.Println("--->err2:", err)
 		if err.Error() == "record not found" {
 			err = nil
 		}
@@ -146,8 +144,6 @@ func (d *Dao) GetTeamInfo(uid int) (resTeam *model.ResTeamInfo, err error) {
 	for _, item := range teamUserList {
 		uids = append(uids, item.UserId)
 	}
-
-	fmt.Println("uids=>", uids)
 
 	teamInfo := new(model.Team)
 

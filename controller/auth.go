@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"fmt"
 	"time"
 
 	"net/http"
@@ -65,11 +64,9 @@ func WxJWT() gin.HandlerFunc {
 		if code == 0 && token != "" {
 			claims, err := ParseWxToken(token)
 			if err != nil {
-				code = 1
-				fmt.Println("code 11111..")
+				code = 400
 			} else if time.Now().Unix() > claims.ExpiresAt {
-				code = 2
-				fmt.Println("code 222222..")
+				code = 403
 			} else {
 				c.Set("wxUserId", claims.Id)
 			}
