@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"strings"
+	"time"
 
 	"github.com/luxingwen/secret-game/dao"
 	"github.com/luxingwen/secret-game/model"
@@ -21,6 +22,7 @@ func (ctl *TeamController) Create(c *gin.Context) {
 		return
 	}
 
+	team.Created = time.Now()
 	team.LeaderId = int64(c.GetInt("wxUserId"))
 	err = dao.GetDao().AddTeam(team)
 
