@@ -1,18 +1,20 @@
 package model
 
 import (
-	"github.com/jinzhu/gorm"
 	"time"
+
+	"github.com/jinzhu/gorm"
 )
 
 type Team struct {
-	Id       int64     `json:"id" gorm:"AUTO_INCREMENT;primary_key;"`
-	Name     string    `json:"name" gorm:"column:name;type:varchar(100);unique_index"`
-	Score    int64     `json:"score"`
-	LeaderId int64     `json:"leader_id"`
-	EndTime  int64     `json:"end_time"`
-	Status   int       `json:"status"`
-	Created  time.Time `json:"created" gorm:"column:created"`
+	Id            int64     `json:"id" gorm:"AUTO_INCREMENT;primary_key;"`
+	Name          string    `json:"name" gorm:"column:name;type:varchar(100);unique_index"`
+	Score         int64     `json:"score"`
+	LeaderId      int64     `json:"leader_id"`
+	EndTime       int64     `json:"end_time"`
+	Status        int       `json:"status"`
+	TeamHeaderImg string    `json:"team_header_img"`
+	Created       time.Time `json:"created" gorm:"column:created"`
 }
 
 func (t Team) TeamName() string {
@@ -45,13 +47,14 @@ type Subject struct {
 
 // 队伍列表信息
 type ResTeam struct {
-	Id       int64  `json:"id"`
-	Name     string `json:"name"`
-	Score    int64  `json:"score"`
-	Count    int64  `json:"count"`
-	Status   int    `json:"status"`
-	LeaderId int64  `json:"leader_id"`
-	IsMember bool   `json:"is_member"`
+	Id         int64  `json:"id"`
+	Name       string `json:"name"`
+	Score      int64  `json:"score"`
+	Count      int64  `json:"count"`
+	Status     int    `json:"status"`
+	LeaderId   int64  `json:"leader_id"`
+	TeamHeader string `json:"team_header"`
+	IsMember   bool   `json:"is_member"`
 }
 
 // 队伍列表返回

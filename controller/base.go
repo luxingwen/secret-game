@@ -68,6 +68,9 @@ func Router() *gin.Engine {
 	api.POST("/wxlogin", WxLogin)
 	api.POST("/wxcode", WxSetCode)
 
+	// 添加静态目录
+	api.Static("/static", "./static")
+
 	api.Use(WxJWT())
 	team := api.Group("/team")
 	teamCtl := &TeamController{}
@@ -77,6 +80,9 @@ func Router() *gin.Engine {
 		team.POST("/join", teamCtl.JoinTeam)
 		team.POST("/quit", teamCtl.QuiteTeam)
 		team.GET("/myinfo", teamCtl.TeamInfo)
+		team.GET("/chat", teamCtl.TeamChat)
+		team.POST("/header", teamCtl.HeaderImg)
+
 	}
 
 	testCtl := &TestController{}
