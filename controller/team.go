@@ -148,12 +148,12 @@ func (ctl *TeamController) TeamChatList(c *gin.Context) {
 
 	res, err := dao.GetDao().GetTeamInfo(uid)
 	if err != nil {
-		handleErr(c, err)
+		handleErr(c, CodeDBErr, err)
 		return
 	}
 	chatList, err := tools.TeamChatList(int(res.Id))
 	if err != nil {
-		handleErr(c, err)
+		handleErr(c, CodeDBErr, err)
 		return
 	}
 	handleOk(c, chatList)
@@ -169,13 +169,13 @@ func (ctl *TeamController) TeamChat(c *gin.Context) {
 	var chat Chat
 	err := c.ShouldBind(&chat)
 	if err != nil {
-		handleErr(c, err)
+		handleErr(c, CodeReqErr, err)
 		return
 	}
 
 	res, err := dao.GetDao().GetTeamInfo(uid)
 	if err != nil {
-		handleErr(c, err)
+		handleErr(c, CodeDBErr, err)
 		return
 	}
 

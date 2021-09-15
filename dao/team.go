@@ -61,10 +61,12 @@ func (d *Dao) List(searchOp *model.TeamListSearch) (res []model.ResTeam, err err
 	for _, item := range teams {
 
 		itemResTeam := model.ResTeam{
-			Id:       item.Id,
-			Name:     item.Name,
-			Score:    item.Score,
-			LeaderId: item.LeaderId,
+			Id:            item.Id,
+			Name:          item.Name,
+			Score:         item.Score,
+			LeaderId:      item.LeaderId,
+			Created:       item.Created.Format("2006-01-02 15:04:05"),
+			TeamHeaderImg: item.TeamHeaderImg,
 		}
 		if itemTeam, ok := mTeam[item.Id]; ok {
 			itemResTeam.Count = itemTeam.Count
