@@ -29,8 +29,8 @@ type TeamListSearch struct {
 
 type TeamUserMap struct {
 	Id     int64 `json:"id" gorm:"AUTO_INCREMENT;primary_key;"`
-	TeamId int64 `json:"team_id" gorm:"unique"`
-	UserId int64 `json:"user_id" gorm:"unique"`
+	TeamId int64 `json:"team_id" gorm:"unique_index:team_user"`
+	UserId int64 `json:"user_id" gorm:"unique_index:team_user"`
 }
 
 // 试题信息

@@ -180,8 +180,19 @@ func (ctl *TeamController) TeamChat(c *gin.Context) {
 	}
 
 	tools.TeamChat(uid, int(res.Id), chat.Content)
+	wxUser, err := dao.GetDao().GetWxUser(uid)
+	if err != nil {
+		handleErr(c, CodeDBErr, err)
+		return
+	}
+	mdata := make(map[string]interface{}, 0)
+	mdata["nickname"] = wxUser.NickName
+	mdata["uid"] = wxUser.ID
+	mdata["avatar_url"] = wxUser.AvatarUrl
 
-	NotifyTeams(uid, "team_chat", chat)
+	mdata["content"] = chat.Content
+
+	NotifyTeams(uid, "team_chat", mdata)
 
 	handleOk(c, "ok")
 }

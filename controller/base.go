@@ -80,7 +80,7 @@ func Router() *gin.Engine {
 		team.POST("/join", teamCtl.JoinTeam)
 		team.POST("/quit", teamCtl.QuiteTeam)
 		team.GET("/myinfo", teamCtl.TeamInfo)
-		team.GET("/chat", teamCtl.TeamChat)
+		team.POST("/chat", teamCtl.TeamChat)
 		team.POST("/header", teamCtl.HeaderImg)
 
 	}
