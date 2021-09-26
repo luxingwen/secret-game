@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -83,7 +84,9 @@ func (ctl *TestController) Answer(c *gin.Context) {
 		return
 	}
 
-	if subject.Answer == req.Content {
+	subject.Answer = strings.ToUpper(strings.TrimSpace(subject.Answer))
+
+	if subject.Answer == strings.ToUpper(strings.TrimSpace(req.Content)) {
 		err = dao.GetDao().TeatTestUpdateAnswerStatus(req.Id)
 		if err != nil {
 			return

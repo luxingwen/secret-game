@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -20,6 +22,9 @@ const (
 )
 
 func handleOk(c *gin.Context, data interface{}) {
+	b, _ := json.Marshal(data)
+
+	fmt.Println("response:", string(b))
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",

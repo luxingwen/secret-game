@@ -21,6 +21,8 @@ const (
 	TableSubject     = "subjects"
 	TableWxUser      = "wx_users"
 	TableWxCode      = "wx_codes"
+
+	HEADER_URL = "https://sustech.osidea.tech/api/"
 )
 
 var dao *Dao

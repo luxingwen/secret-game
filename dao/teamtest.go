@@ -4,7 +4,20 @@ import (
 	"github.com/luxingwen/secret-game/model"
 
 	"github.com/jinzhu/gorm"
+
+	"math/rand"
+	"time"
 )
+
+func Shuffle(slice []int64) {
+	r := rand.New(rand.NewSource(time.Now().Unix()))
+	for len(slice) > 0 {
+		n := len(slice)
+		randIndex := r.Intn(n)
+		slice[n-1], slice[randIndex] = slice[randIndex], slice[n-1]
+		slice = slice[:n-1]
+	}
+}
 
 func (d *Dao) GenTeamTest(teamid int64) (err error) {
 	resSubject := make([]*model.Subject, 0)
@@ -20,21 +33,35 @@ func (d *Dao) GenTeamTest(teamid int64) (err error) {
 		return
 	}
 
+	ids := make([]int64, 0)
+
 	mSubject := make(map[int64]*model.Subject, 0)
 	for _, item := range resSubject {
 		mSubject[item.Id] = item
+		if item.Id == 9 {
+			continue
+		}
+		ids = append(ids, item.Id)
 	}
+
+	Shuffle(ids)
 	tests := make([]*model.TeamTest, 0)
 
 	var id int64 = 1
-	for _, item := range mSubject {
+	for _, itemId := range ids {
 		tests = append(tests, &model.TeamTest{
 			TeamId:    teamid,
 			SortNo:    id,
-			SubjectId: item.Id,
+			SubjectId: itemId,
 		})
 		id++
 	}
+
+	tests = append(tests, &model.TeamTest{
+		TeamId:    teamid,
+		SortNo:    id,
+		SubjectId: 9,
+	})
 
 	for _, item := range tests {
 		err = d.DB.Table(TableTeamTest).Create(&item).Error
@@ -59,17 +86,7 @@ func (d *Dao) GetSubjectByTestId(id int) (res *model.Subject, err error) {
 }
 
 func (d *Dao) TeamTestList(teamId int64) (res []model.ResTeamTest, err error) {
-	var count int64
-	err = d.DB.Table(TableTeamTest).Where("team_id = ?", teamId).Count(&count).Error
-	if err != nil {
-		return
-	}
-	if count == 0 {
-		err = d.GenTeamTest(teamId)
-		if err != nil {
-			return
-		}
-	}
+
 	resTeamTests := make([]*model.TeamTest, 0)
 	err = d.DB.Table(TableTeamTest).Where("team_id = ?", teamId).Order("sort_no ASC").Find(&resTeamTests).Error
 	if err != nil {

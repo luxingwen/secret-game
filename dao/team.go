@@ -61,12 +61,12 @@ func (d *Dao) List(searchOp *model.TeamListSearch) (res []model.ResTeam, err err
 	for _, item := range teams {
 
 		itemResTeam := model.ResTeam{
-			Id:            item.Id,
-			Name:          item.Name,
-			Score:         item.Score,
-			LeaderId:      item.LeaderId,
-			Created:       item.Created.Format("2006-01-02 15:04:05"),
-			TeamHeaderImg: item.TeamHeaderImg,
+			Id:         item.Id,
+			Name:       item.Name,
+			Score:      item.Score,
+			LeaderId:   item.LeaderId,
+			Created:    item.Created.Format("2006-01-02 15:04:05"),
+			TeamHeader: HEADER_URL + item.TeamHeaderImg,
 		}
 		if itemTeam, ok := mTeam[item.Id]; ok {
 			itemResTeam.Count = itemTeam.Count
@@ -148,6 +148,10 @@ func (d *Dao) GetTeamByLeaderId(leaderId int64) (team *model.Team, err error) {
 }
 
 func (d *Dao) GetTeamInfo(uid int) (resTeam *model.ResTeamInfo, err error) {
+	resTeam = &model.ResTeamInfo{
+		Users: make([]model.ResWxUser, 0),
+	}
+
 	teamUser := new(model.TeamUserMap)
 	err = d.DB.Table(TableTeamUser).Where("user_id = ?", uid).First(&teamUser).Error
 	if err != nil {
@@ -181,10 +185,6 @@ func (d *Dao) GetTeamInfo(uid int) (resTeam *model.ResTeamInfo, err error) {
 		return
 	}
 
-	resTeam = &model.ResTeamInfo{
-		Users: make([]model.ResWxUser, 0),
-	}
-
 	for _, item := range users {
 		resTeam.Users = append(resTeam.Users, model.ResWxUser{
 			Id:        int64(item.ID),
@@ -196,7 +196,7 @@ func (d *Dao) GetTeamInfo(uid int) (resTeam *model.ResTeamInfo, err error) {
 	resTeam.Id = teamInfo.Id
 	resTeam.Name = teamInfo.Name
 	resTeam.Score = teamInfo.Score
-	resTeam.TeamHeader = teamInfo.TeamHeaderImg
+	resTeam.TeamHeader = HEADER_URL + teamInfo.TeamHeaderImg
 	resTeam.Status = teamInfo.Status
 	resTeam.LeaderId = teamInfo.LeaderId
 	return
@@ -222,6 +222,6 @@ func (d *Dao) GetTeamIdByUserUid(uid int) (r int64, err error) {
 	if err != nil {
 		return
 	}
-	r = teamUser.Id
+	r = teamUser.TeamId
 	return
 }

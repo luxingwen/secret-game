@@ -135,7 +135,7 @@ func (ctl *TeamController) TeamInfo(c *gin.Context) {
 	uid := c.GetInt("wxUserId")
 
 	res, err := dao.GetDao().GetTeamInfo(uid)
-	if err != nil {
+	if err != nil && err.Error() != "record not found" {
 		handleErr(c, CodeDBErr, err)
 		return
 	}

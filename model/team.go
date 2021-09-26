@@ -47,16 +47,15 @@ type Subject struct {
 
 // 队伍列表信息
 type ResTeam struct {
-	Id            int64  `json:"id"`
-	Name          string `json:"name"`
-	Score         int64  `json:"score"`
-	Count         int64  `json:"count"`
-	Status        int    `json:"status"`
-	LeaderId      int64  `json:"leader_id"`
-	TeamHeader    string `json:"team_header"`
-	IsMember      bool   `json:"is_member"`
-	Created       string `json:"created"`
-	TeamHeaderImg string `json:"team_header_img"`
+	Id         int64  `json:"id"`
+	Name       string `json:"name"`
+	Score      int64  `json:"score"`
+	Count      int64  `json:"count"`
+	Status     int    `json:"status"`
+	LeaderId   int64  `json:"leader_id"`
+	TeamHeader string `json:"team_header"`
+	IsMember   bool   `json:"is_member"`
+	Created    string `json:"created"`
 }
 
 // 队伍列表返回
