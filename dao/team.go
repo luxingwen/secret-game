@@ -45,7 +45,7 @@ func (d *Dao) List(searchOp *model.TeamListSearch) (res []model.ResTeam, err err
 		return
 	}
 	resTeam := make([]*ResTeamUser, 0)
-	err = d.DB.Table(TableTeamUser).Select("id, count(user_id) AS count, team_id").Group("team_id,id").Find(&resTeam).Error
+	err = d.DB.Table(TableTeamUser).Select("count(user_id) AS count, team_id").Group("team_id").Find(&resTeam).Error
 	if err != nil {
 		if err.Error() == "record not found" {
 			err = nil

@@ -9,42 +9,31 @@ import (
 	"time"
 )
 
-func Shuffle(slice []int64) {
-	r := rand.New(rand.NewSource(time.Now().Unix()))
-	for len(slice) > 0 {
-		n := len(slice)
-		randIndex := r.Intn(n)
-		slice[n-1], slice[randIndex] = slice[randIndex], slice[n-1]
-		slice = slice[:n-1]
+func getRandList(id int, max int) (list []int) {
+	for i := id; i <= max; i++ {
+		list = append(list, i)
 	}
+
+	for i := 1; i < id; i++ {
+		list = append(list, i)
+	}
+	return
 }
 
 func (d *Dao) GenTeamTest(teamid int64) (err error) {
-	resSubject := make([]*model.Subject, 0)
-
-	err = d.DB.Table(TableSubject).Find(&resSubject).Error
-
-	if err != nil {
-		return
-	}
 
 	err = d.DB.Table(TableTeamTest).Where("team_id = ?", teamid).Delete(&model.TeamTest{}).Error
 	if err != nil {
 		return
 	}
 
-	ids := make([]int64, 0)
+	r := rand.New(rand.NewSource(time.Now().Unix()))
 
-	mSubject := make(map[int64]*model.Subject, 0)
-	for _, item := range resSubject {
-		mSubject[item.Id] = item
-		if item.Id == 9 {
-			continue
-		}
-		ids = append(ids, item.Id)
-	}
+	index := r.Intn(8) + 1
 
-	Shuffle(ids)
+	ids := getRandList(index, 8)
+	ids = append(ids, 9)
+
 	tests := make([]*model.TeamTest, 0)
 
 	var id int64 = 1
@@ -52,16 +41,10 @@ func (d *Dao) GenTeamTest(teamid int64) (err error) {
 		tests = append(tests, &model.TeamTest{
 			TeamId:    teamid,
 			SortNo:    id,
-			SubjectId: itemId,
+			SubjectId: int64(itemId),
 		})
 		id++
 	}
-
-	tests = append(tests, &model.TeamTest{
-		TeamId:    teamid,
-		SortNo:    id,
-		SubjectId: 9,
-	})
 
 	for _, item := range tests {
 		err = d.DB.Table(TableTeamTest).Create(&item).Error
